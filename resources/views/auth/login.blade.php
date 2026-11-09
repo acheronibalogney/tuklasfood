@@ -44,9 +44,9 @@
                 </x-button>
             </div>
         </form>
-        @if(app()->environment('local'))
+        @if(app()->environment('local') || config('app.demo_login_enabled'))
             <section class="test-accounts" aria-labelledby="test-accounts-title">
-                <div class="test-accounts-heading"><h3 id="test-accounts-title">Try a testing account</h3><span>LOCAL ONLY</span></div>
+                <div class="test-accounts-heading"><h3 id="test-accounts-title">Try a testing account</h3><span>{{ app()->environment('local') ? 'LOCAL' : 'DEMO ACCESS' }}</span></div>
                 <p>Choose a role to explore. No password needed.</p>
                 <div class="test-accounts-grid">
                     <form method="POST" action="{{ route('demo.login') }}">

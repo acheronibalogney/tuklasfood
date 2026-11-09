@@ -132,6 +132,17 @@ class LandingDemoTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_admin_demo_can_be_enabled_in_production(): void
+    {
+        $this->app['env'] = 'production';
+        config(['app.demo_login_enabled' => true]);
+        $admin = User::factory()->create(['email' => 'admin@tuklasfood.test', 'role' => 'admin']);
+
+        $this->get('/login')->assertOk()->assertSee('admin@tuklasfood.test');
+        $this->post('/demo-login/admin')->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($admin);
+    }
+
     public function test_admin_demo_requires_an_actual_admin_without_two_factor(): void
     {
         $this->app['env'] = 'local';
