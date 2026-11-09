@@ -1,0 +1,22 @@
+@import 'tailwindcss';
+@import './fonts.css';
+@config '../../tailwind.config.js';
+
+[x-cloak] {
+    display: none;
+}
+
+:root {
+    --tf-primary: #2E7D32;
+    --tf-secondary: #FF9800;
+    --tf-bg: #FFFDF7;
+    --tf-card: #FFFFFF;
+    --tf-text: #263238;
+    --tf-accent: #FFF3CD;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--tf-bg);
+    color: var(--tf-text);
+}

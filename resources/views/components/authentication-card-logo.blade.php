@@ -1,0 +1,1 @@
+<a href="{{ route('home') }}" aria-label="TuklasFood home"><x-food-logo /></a>

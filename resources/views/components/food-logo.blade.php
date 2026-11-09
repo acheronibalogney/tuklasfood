@@ -1,0 +1,1 @@
+<span class="food-logo"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 15h22c-1 8-6 12-11 12S6 23 5 15Z" fill="currentColor"/><path d="M11 10V5m5 5V3m5 7V5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span>tuklasfood<span class="logo-dot">®</span></span></span>
