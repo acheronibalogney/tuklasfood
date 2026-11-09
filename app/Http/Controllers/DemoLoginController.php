@@ -15,7 +15,7 @@ class DemoLoginController extends Controller
 
     public function __invoke(Request $request): RedirectResponse
     {
-        abort_unless(app()->environment('local'), 404);
+        abort_unless(app()->environment('local') || config('app.demo_login_enabled'), 404);
 
         $role = $request->route('demo_role', 'user');
         $email = $role === 'admin' ? self::ADMIN_EMAIL : self::EMAIL;

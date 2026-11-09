@@ -12,7 +12,8 @@ class LandingController extends Controller
     {
         return view('welcome', [
             'recipes' => Recipe::where('is_published', true)->with(['ingredients.ingredient', 'steps', 'equipment'])->orderBy('id')->get(),
-            'demoAvailable' => app()->environment('local') && User::where('email', DemoLoginController::EMAIL)->where('role', 'user')->whereNull('two_factor_secret')->exists(),
+            'demoAvailable' => (app()->environment('local') || config('app.demo_login_enabled'))
+                && User::where('email', DemoLoginController::EMAIL)->where('role', 'user')->whereNull('two_factor_secret')->exists(),
         ]);
     }
 }

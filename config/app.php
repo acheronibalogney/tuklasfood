@@ -40,6 +40,7 @@ return [
     */
 
     'debug' => (bool) env('APP_DEBUG', false),
+    'demo_login_enabled' => (bool) env('DEMO_LOGIN_ENABLED', false),
 
     /*
     |--------------------------------------------------------------------------
