@@ -93,7 +93,7 @@ sequenceDiagram
     API->>DB: Select published recipes and eager-load ingredients, steps, tools
     API->>DB: Select this user's pantry and selected equipment
     API-->>App: Recipe catalog and kitchen stock
-    App->>App: Search titles/cuisine/ingredients; calculate missing items/tools
+    App->>App: Search titles/cuisine/ingredients and calculate missing items/tools
     App-->>User: Show recipe cards, readiness, missing requirements
     User->>App: Open recipe
     App-->>User: Show ingredient quantities and directions

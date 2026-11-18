@@ -80,7 +80,7 @@ sequenceDiagram
         App-->>User: Show ingredient confidence and expandable recipes
     else Invalid image, unavailable AI, or incomplete result
         API-->>App: Validation error or retryable service error
-        App-->>User: Show error; no recommendation record is saved
+        App-->>User: Show error, no recommendation record is saved
     end
 ```
 
