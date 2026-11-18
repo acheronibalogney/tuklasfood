@@ -80,6 +80,31 @@ The mobile app initializes Firebase Core, then displays its own sign-in/registra
 
 Mobile routes are defined in `routes/api.php` and are protected by `auth:sanctum` and rate limits where applicable.
 
+## Recipe discovery and cooking workflow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant App as Flutter Recipes tab
+    participant API as Laravel MobileKitchenController
+    participant DB as MySQL
+    User->>App: Open Recipes or change search/filter
+    App->>API: GET /api/v1/kitchen (when loading or refreshing)
+    API->>DB: Select published recipes and eager-load ingredients, steps, tools
+    API->>DB: Select this user's pantry and selected equipment
+    API-->>App: Recipe catalog and kitchen stock
+    App->>App: Search titles/cuisine/ingredients; calculate missing items/tools
+    App-->>User: Show recipe cards, readiness, missing requirements
+    User->>App: Open recipe
+    App-->>User: Show ingredient quantities and directions
+    User->>App: Start cooking
+    App-->>User: Walk through steps and run optional foreground timer
+```
+
+Recipe catalog rows and their ingredient quantities, directions, and tool requirements are maintained separately in `recipes`, `recipe_ingredients`, `recipe_steps`, and `recipe_equipment`. The mobile kitchen API only returns recipes marked published, along with related records so the app can render full recipe details without additional per-recipe requests.
+
+The Flutter client compares each required recipe ingredient's normalized quantity (`quantity_base`) with the sum of the user's non-expired pantry stock for that ingredient. Optional recipe ingredients do not make a recipe unavailable. For equipment, recipes may define alternative tools in the same `group_no`; a requirement is met if the user selected any tool from each group. The app uses those calculations to show readiness and missing ingredients/tools, and lets users filter to recipes marked ready. These calculations use the most recently loaded kitchen data; refreshing reloads current server data. Recipe step timers run while the app is open and do not schedule a background alarm.
+
 ## Ingredient photo scan and saved recommendations
 
 ```mermaid
