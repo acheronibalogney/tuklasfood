@@ -1,3 +1,9 @@
+## TuklasFood System Flow
+
+TuklasFood includes a Laravel web app and a Flutter mobile app. Both use Laravel APIs and MySQL for kitchen data. The mobile app authenticates with Sanctum tokens, while Laravel sends ingredient photos or cooking questions to Gemini for AI responses. Successful ingredient scans are saved per user as recipes with measured ingredients and cooking steps; the original photos are not stored.
+
+See the full architecture diagrams, user flows, API route summary, and database map in [SYSTEM_FLOW.md](SYSTEM_FLOW.md).
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
