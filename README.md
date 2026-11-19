@@ -123,35 +123,80 @@ See [SYSTEM_FLOW.md](SYSTEM_FLOW.md) for detailed diagrams, web and mobile flows
 
 ## Run locally
 
-### Laravel backend
+### Requirements
 
-Requirements include PHP 8.5.12 or compatible with the project constraints, Composer, Node.js compatible with the version requirements in `package.json`, and MySQL.
+- PHP 8.5.12 or a version allowed by `composer.json`, Composer, and MySQL
+- Node.js 22.12 or newer and npm for Laravel's Vite assets
+- Flutter with Dart 3.13.4 or newer, plus Chrome, for the Flutter web app
 
-```bash
+### Clone and install dependencies (Windows PowerShell)
+
+```powershell
+git clone https://github.com/acheronibalogney/tuklasfood.git
+cd tuklasfood
 composer install
-cp .env.example .env
+Copy-Item .env.example .env
 php artisan key:generate
-```
-
-Set the local MySQL connection in `.env`, then configure the server-side Gemini settings (`AI_PROVIDER`, `AI_API_KEY`, and `AI_TEXT_MODEL`). Keep the API key private; do not add it to Flutter or commit it.
-
-```bash
-php artisan migrate --seed
 npm install
 npm run build
-php artisan serve
 ```
 
-### Flutter mobile app
+`npm install` is used because it can reconcile the lockfile if package versions need updating. `npm run build` builds the Laravel Blade/Vite assets; the Flutter web app is run separately below.
 
-Install Flutter and Android Studio, then from the `mobile` folder run:
+### Configure MySQL
 
-```bash
+Start your local MySQL server, then create the application database. This command prompts for the MySQL account password:
+
+```powershell
+mysql -u root -p -e "CREATE DATABASE tuklas_food CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
+
+Edit `.env` and set `DB_CONNECTION=mysql`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_DATABASE=tuklas_food`, `DB_USERNAME`, and `DB_PASSWORD` to credentials that can access that database. Do not commit `.env` or share its password. Set `AI_PROVIDER`, `AI_API_KEY`, and `AI_TEXT_MODEL` on the Laravel server only if you want the AI features; registration does not require an AI key.
+
+Run the migrations and load the recipe/reference catalog:
+
+```powershell
+php artisan migrate
+php artisan db:seed --class='Database\Seeders\ReferenceDataSeeder'
+php artisan db:seed --class='Database\Seeders\RecipeSeeder'
+```
+
+### Run the Flutter web app on localhost
+
+From the `mobile` folder, run the Flutter web app in Google Chrome:
+
+```powershell
+cd mobile
+flutter pub get
+flutter run -d chrome
+```
+
+Flutter opens the app in Chrome and prints its localhost URL. The default web API address is the TuklasFood EC2 API. For registration to work, the server must be reachable, have a valid HTTPS certificate, and allow the localhost origin in CORS. Laravel—not Flutter—writes account data to MySQL.
+
+To use a local Laravel API and MySQL instead, first start Laravel in **PowerShell terminal 1** at the repository root:
+
+```powershell
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Then run Flutter from `mobile` in **PowerShell terminal 2** with this API override:
+
+```powershell
+flutter run -d chrome --web-hostname 127.0.0.1 --web-port 5180 --dart-define=API_BASE=http://127.0.0.1:8000/api/v1
+```
+
+The local Laravel CORS configuration allows localhost preview ports 5180 and 5181.
+
+### Run the Flutter mobile app
+
+From the `mobile` folder, run:
+
+```powershell
 flutter pub get
 flutter run --dart-define=API_BASE=http://10.0.2.2:8000/api/v1
 ```
 
-`10.0.2.2` is the Android emulator alias for the host computer. For a physical device, set `API_BASE` to a server address reachable over the network. Firebase platform configuration files are required for Firebase initialization.
+`10.0.2.2` is the Android emulator alias for the host computer. For a physical device, set `API_BASE` to an API server address reachable from that device. Firebase platform configuration files are required for native Firebase initialization; Flutter Web does not require them for registration.
 
 ## API overview
 
