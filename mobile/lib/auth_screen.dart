@@ -48,6 +48,7 @@ class _AuthScreenState extends State<AuthScreen> {
           },
           if (!register && code.text.isNotEmpty) 'code': code.text.trim(),
         },
+        const Duration(seconds: 25),
       );
       if (!mounted) return;
       widget.api.token = result['token'] as String;
