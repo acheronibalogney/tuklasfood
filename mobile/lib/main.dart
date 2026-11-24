@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:firebase_core/firebase_core.dart';
 
 import 'api.dart';
 import 'auth_screen.dart';
+import 'firebase_options.dart';
 import 'home_screen.dart';
 
-void main() => runApp(TuklasFoodApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (!kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+  runApp(TuklasFoodApp());
+}
+
 const forest = Color(0xFF173F34),
     cream = Color(0xFFF7F5EB),
     orange = Color(0xFFE87939);
@@ -22,8 +34,11 @@ class _TuklasFoodAppState extends State<TuklasFoodApp> {
   @override
   void initState() {
     super.initState();
+    widget.api.restoreSession();
+    signedIn = widget.api.token != null;
     widget.api.onUnauthorized = () {
       if (mounted) {
+        widget.api.token = null;
         navigator.currentState?.popUntil((route) => route.isFirst);
         setState(() => signedIn = false);
       }

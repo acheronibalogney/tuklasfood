@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'api.dart';
 import 'kitchen.dart';
@@ -6,6 +7,7 @@ import 'main.dart';
 import 'pantry_editor.dart';
 import 'recipe_screen.dart';
 import 'chat_screen.dart';
+import 'ingredient_scanner_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.api, required this.onLogout});
@@ -383,8 +385,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     ),
-    const Text(
-      'Pantry and tools are saved to your account. For now, sign in again after closing the app.',
+    Text(
+      kIsWeb
+          ? 'Your session stays active when you refresh this browser tab. Sign out to end it.'
+          : 'Pantry and tools are saved to your account. For now, sign in again after closing the app.',
     ),
     const SizedBox(height: 20),
     OutlinedButton.icon(
@@ -455,6 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       recipes(),
                       pantryPage(),
+                      IngredientScannerScreen(api: widget.api),
                       toolsPage(),
                       ChatScreen(
                         api: widget.api,
@@ -480,6 +485,10 @@ class _HomeScreenState extends State<HomeScreen> {
               NavigationDestination(
                 icon: Icon(Icons.inventory_2_outlined),
                 label: 'Pantry',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.document_scanner_outlined),
+                label: 'Scan',
               ),
               NavigationDestination(
                 icon: Icon(Icons.kitchen_outlined),

@@ -59,6 +59,7 @@ class MobileApiTest extends TestCase
     public function test_private_mobile_routes_require_authentication(): void
     {
         $this->getJson('/api/v1/kitchen')->assertUnauthorized();
+        $this->getJson('/api/v1/recommendations')->assertUnauthorized();
         $this->postJson('/api/v1/pantry', [])->assertUnauthorized();
         $this->putJson('/api/v1/equipment', ['equipment' => []])->assertUnauthorized();
         $this->postJson('/api/v1/cooking-chat', ['message' => 'Hello'])->assertUnauthorized();
@@ -138,6 +139,99 @@ class MobileApiTest extends TestCase
         Http::preventStrayRequests();
         Http::fake(['https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent' => Http::response(['candidates' => [['content' => ['parts' => [['text' => 'Simmer until cooked.']]]]]])]);
         $this->postJson('/api/v1/cooking-chat', ['message' => 'How do I cook adobo?'])->assertOk()->assertJsonPath('reply', 'Simmer until cooked.');
+        Http::assertSent(fn ($request): bool => str_contains($request['systemInstruction']['parts'][0]['text'], 'at least 3 varied meal ideas')
+            && str_contains($request['systemInstruction']['parts'][0]['text'], 'measured ingredient quantities'));
         Http::assertSentCount(1);
+    }
+
+    public function test_ingredient_scanner_requires_authentication_and_valid_images(): void
+    {
+        $image = ['mime_type' => 'image/png', 'data' => 'not-base64'];
+
+        $this->postJson('/api/v1/ingredient-scan', ['images' => [$image]])->assertUnauthorized();
+
+        Sanctum::actingAs(User::factory()->create());
+        $this->postJson('/api/v1/ingredient-scan', ['images' => [$image]])
+            ->assertUnprocessable()->assertJsonValidationErrors('images.0.data');
+    }
+
+    public function test_ingredient_scanner_sends_multiple_images_to_gemini(): void
+    {
+        $user = User::factory()->create();
+        Sanctum::actingAs($user);
+        config(['services.cooking_ai.provider' => 'gemini', 'services.cooking_ai.key' => 'fake-test-key', 'services.cooking_ai.model' => 'test-model']);
+        Http::preventStrayRequests();
+        $analysis = [
+            'summary' => 'Two ingredients are visible.',
+            'ingredients' => [['name' => 'Tomato', 'category' => 'vegetable', 'confidence' => 'high', 'visual_notes' => 'Red and round.', 'insights' => 'Sweet and tangy.']],
+            'meal_ideas' => [[
+                'name' => 'Tomato omelette',
+                'reason' => 'A quick Filipino-style lunch.',
+                'servings' => 2,
+                'prep_minutes' => 5,
+                'cook_minutes' => 10,
+                'tools' => ['Frying pan', 'Bowl'],
+                'ingredients' => [['name' => 'Tomato', 'quantity' => '1 medium', 'optional' => false], ['name' => 'Egg', 'quantity' => '2 large', 'optional' => false]],
+                'steps' => ['Beat eggs.', 'Cook tomato until soft.', 'Add eggs and cook until set.'],
+            ]],
+        ];
+        $geminiResponse = ['candidates' => [[
+            'content' => ['parts' => [
+                ['thought' => true, 'text' => 'Internal reasoning must not be shown to the user.'],
+                ['text' => json_encode($analysis)],
+            ]],
+        ]]];
+        Http::fake(['https://generativelanguage.googleapis.com/v1beta/models/test-model:generateContent' => Http::sequence()
+            ->push(['error' => ['code' => 503, 'status' => 'UNAVAILABLE']], 503)
+            ->push($geminiResponse)]);
+        $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/dWQAAAAASUVORK5CYII=';
+
+        $this->postJson('/api/v1/ingredient-scale', [
+            'images' => [
+                ['mime_type' => 'image/png', 'data' => $png],
+                ['mime_type' => 'image/png', 'data' => $png],
+            ],
+            'context' => 'I have potatoes, chili, and flour. Suggest a quick Filipino lunch.',
+        ])->assertOk()
+            ->assertJsonPath('ingredients.0.name', 'Tomato')
+            ->assertJsonPath('meal_ideas.0.name', 'Tomato omelette')
+            ->assertJsonPath('meal_ideas.0.ingredients.0.quantity', '1 medium')
+            ->assertJsonStructure(['saved_recommendation_id']);
+
+        $this->assertDatabaseHas('ai_recommendations', [
+            'user_id' => $user->id,
+            'context' => 'I have potatoes, chili, and flour. Suggest a quick Filipino lunch.',
+        ]);
+
+        Http::assertSent(fn ($request): bool => count($request['contents'][0]['parts']) === 3
+            && $request['contents'][0]['parts'][1]['inline_data']['mime_type'] === 'image/png'
+            && str_contains($request['contents'][0]['parts'][0]['text'], 'I have potatoes, chili, and flour')
+            && str_contains($request['contents'][0]['parts'][0]['text'], 'specific quantity and unit')
+            && str_contains($request['contents'][0]['parts'][0]['text'], '5 meal recommendations'));
+        Http::assertSentCount(2);
+    }
+
+    public function test_saved_ai_recommendations_are_private_to_the_current_user(): void
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $owner->aiRecommendations()->create([
+            'summary' => 'Potato ideas.',
+            'ingredients' => [['name' => 'Potato']],
+            'meal_ideas' => [['name' => 'Chili potato fritters']],
+            'context' => 'Quick dinner',
+        ]);
+        $otherUser->aiRecommendations()->create([
+            'summary' => 'Private idea.',
+            'ingredients' => [['name' => 'Rice']],
+            'meal_ideas' => [['name' => 'Rice bowl']],
+        ]);
+
+        Sanctum::actingAs($owner);
+        $this->getJson('/api/v1/recommendations')
+            ->assertOk()
+            ->assertJsonCount(1, 'recommendations')
+            ->assertJsonPath('recommendations.0.summary', 'Potato ideas.')
+            ->assertJsonMissing(['summary' => 'Private idea.']);
     }
 }

@@ -28,7 +28,7 @@ class CookingChatController extends Controller
         $reply = $assistant->reply($data['message'], $data['history'] ?? []);
 
         if ($reply === null) {
-            return response()->json(['message' => 'The cooking assistant could not respond right now. Please try again shortly.'], 503);
+            return response()->json(['message' => $assistant->failureMessage()], 503);
         }
 
         return response()->json(['reply' => $reply]);

@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AiRecommendationController;
 use App\Http\Controllers\CookingChatController;
+use App\Http\Controllers\IngredientScanController;
 use App\Http\Controllers\MobileAuthController;
 use App\Http\Controllers\MobileKitchenController;
 use Illuminate\Http\Request;
@@ -13,6 +15,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         Route::delete('auth/token', [MobileAuthController::class, 'destroy']);
         Route::get('kitchen', [MobileKitchenController::class, 'index']);
+        Route::get('recommendations', [AiRecommendationController::class, 'index']);
+        Route::post('ingredient-scan', IngredientScanController::class)->middleware('throttle:5,1');
+        Route::post('ingredient-scale', IngredientScanController::class)->middleware('throttle:5,1');
         Route::post('pantry', [MobileKitchenController::class, 'store']);
         Route::put('pantry/{item}', [MobileKitchenController::class, 'update']);
         Route::delete('pantry/{item}', [MobileKitchenController::class, 'destroy']);

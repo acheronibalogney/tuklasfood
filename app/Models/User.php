@@ -79,6 +79,11 @@ class User extends Authenticatable
         return $this->hasMany(UserIngredient::class);
     }
 
+    public function aiRecommendations(): HasMany
+    {
+        return $this->hasMany(AiRecommendation::class);
+    }
+
     public function equipment(): BelongsToMany
     {
         return $this->belongsToMany(Equipment::class);

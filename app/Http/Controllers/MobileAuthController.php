@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 
@@ -21,7 +22,7 @@ class MobileAuthController extends Controller
             'password' => ['required', 'string'],
             'code' => ['nullable', 'string', 'size:6'],
         ]);
-        $user = User::where('email', $data['email'])->first();
+        $user = User::where('email', Str::lower(trim($data['email'])))->first();
         if (! $user || ! Hash::check($data['password'], $user->password)) {
             throw ValidationException::withMessages(['email' => ['The provided credentials are incorrect.']]);
         }

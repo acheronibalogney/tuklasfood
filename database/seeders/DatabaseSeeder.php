@@ -10,6 +10,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $demoUserEmail = (string) env('SEED_USER_EMAIL', 'user@tuklasfood.test');
+
         $this->call([
             ReferenceDataSeeder::class,
             RecipeSeeder::class,
@@ -17,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         $accounts = [
             ['name' => 'TuklasFood Admin', 'email' => 'admin@tuklasfood.test', 'role' => 'admin'],
-            ['name' => 'Sample User',      'email' => 'user@tuklasfood.test',  'role' => 'user'],
+            ['name' => 'Sample User',      'email' => $demoUserEmail,           'role' => 'user'],
         ];
 
         foreach ($accounts as $account) {
@@ -29,5 +31,10 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ])->save();
         }
+
+        $this->call([
+            DemoKitchenSeeder::class,
+            DemoRecommendationSeeder::class,
+        ]);
     }
 }

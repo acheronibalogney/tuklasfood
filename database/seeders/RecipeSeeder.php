@@ -195,6 +195,39 @@ class RecipeSeeder extends Seeder
                     ['Cook, turning once halfway, until golden and cooked through with juices running clear.', 1200],
                 ],
             ],
+            [
+                'title' => 'Pan-Fried Bangus with Calamansi',
+                'description' => 'Crisp pan-fried milkfish served with fresh calamansi.',
+                'servings' => 2, 'prep' => 10, 'cook' => 15, 'difficulty' => 'easy',
+                'ingredients' => [
+                    ['Bangus', 500, 'g'], ['Salt', 5, 'g'], ['Cooking Oil', 30, 'ml'],
+                    ['Calamansi', 4, 'pc', true],
+                ],
+                'equipment' => [['Stove'], ['Frying Pan']],
+                'steps' => [
+                    ['Pat the fish dry and season both sides with salt.'],
+                    ['Heat oil in a frying pan over medium heat.'],
+                    ['Fry the fish until the outside is crisp and the thickest part is fully cooked, turning carefully once.', 420],
+                    ['Serve with calamansi on the side if desired.'],
+                ],
+            ],
+            [
+                'title' => 'Beef and Cabbage Stir-Fry',
+                'description' => 'Quickly cooked beef and vegetables in a savory oyster sauce.',
+                'servings' => 3, 'prep' => 15, 'cook' => 15, 'difficulty' => 'medium',
+                'ingredients' => [
+                    ['Beef Sirloin', 300, 'g'], ['Cabbage', 150, 'g'], ['Carrot', 1, 'pc'],
+                    ['Garlic', 2, 'pc'], ['Soy Sauce', 30, 'ml'], ['Oyster Sauce', 15, 'ml'],
+                    ['Cooking Oil', 15, 'ml'],
+                ],
+                'equipment' => [['Stove'], ['Frying Pan']],
+                'steps' => [
+                    ['Slice the beef thinly across the grain. Slice the carrot and cabbage, then mince the garlic.'],
+                    ['Heat oil in a frying pan and cook the beef in a single layer until browned.', 240],
+                    ['Add garlic, carrot, soy sauce, and oyster sauce. Stir-fry until the carrot begins to soften.', 180],
+                    ['Add cabbage and cook until tender-crisp. Make sure the beef is fully cooked before serving.', 180],
+                ],
+            ],
         ];
     }
 }

@@ -5,7 +5,11 @@ return [
     'cooking_ai' => [
         'provider' => env('AI_PROVIDER', 'gemini'),
         'key' => env('AI_API_KEY'),
-        'model' => env('AI_TEXT_MODEL'),
+        'model' => env('AI_TEXT_MODEL') ?: 'gemini-3.7-flash',
+        'fallback_models' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', env('AI_FALLBACK_TEXT_MODELS', 'gemini-3.5-flash,gemini-3.1-flash-lite')),
+        ))),
     ],
 
     /*

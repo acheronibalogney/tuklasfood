@@ -40,13 +40,13 @@ class _AuthScreenState extends State<AuthScreen> {
         'POST',
         'auth/${register ? 'register' : 'login'}',
         {
-          'email': email.text.trim(),
+          'email': email.text.trim().toLowerCase(),
           'password': password.text,
           if (register) ...{
-            'name': '${first.text.trim()} ${last.text.trim()}',
+            'name': '${first.text.trim()} ${last.text.trim()}'.trim(),
             'password_confirmation': confirmation.text,
           },
-          if (!register && code.text.isNotEmpty) 'code': code.text.trim(),
+          if (!register && code.text.trim().isNotEmpty) 'code': code.text.trim(),
         },
         const Duration(seconds: 25),
       );
@@ -107,8 +107,24 @@ class _AuthScreenState extends State<AuthScreen> {
               )
             : null,
       ),
-      validator: (value) =>
-          !optional && (value ?? '').trim().isEmpty ? 'Enter $label' : null,
+      validator: (value) {
+        final text = (value ?? '').trim();
+        if (!optional && text.isEmpty) {
+          return 'Enter $label';
+        }
+        if (label == 'Email' &&
+            text.isNotEmpty &&
+            !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(text)) {
+          return 'Enter a valid email address';
+        }
+        if (register && label == 'Password' && (value ?? '').length < 8) {
+          return 'Use at least 8 characters';
+        }
+        if (register && label == 'Confirm password' && value != password.text) {
+          return 'Passwords do not match';
+        }
+        return null;
+      },
     ),
   );
   @override

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "140599043875",
+    "project_id": "tuklasfood",
+    "storage_bucket": "tuklasfood.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:140599043875:android:7a6a3784a79d79e95c4e96",
+        "android_client_info": {
+          "package_name": "com.tuklasfood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCa6euMVABb8l7amEed-bJEOgpnjJr3I-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:140599043875:android:1fca189c62c239d95c4e96",
+        "android_client_info": {
+          "package_name": "com.tuklasfood.tuklasfood_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCa6euMVABb8l7amEed-bJEOgpnjJr3I-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

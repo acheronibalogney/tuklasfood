@@ -9,6 +9,9 @@ import 'api_transport_stub.dart'
     if (dart.library.html) 'api_transport_web.dart'
     as transport;
 import 'api_transport_types.dart';
+import 'session_token_store_stub.dart'
+    if (dart.library.html) 'session_token_store_web.dart'
+    as session_token_store;
 
 String _defaultApiBaseUrl() {
   const configuredBaseUrl = String.fromEnvironment('API_BASE');
@@ -16,6 +19,12 @@ String _defaultApiBaseUrl() {
     return configuredBaseUrl;
   }
   if (kIsWeb) {
+    final hostname = Uri.base.host;
+    if (hostname == 'localhost' ||
+        hostname == '127.0.0.1' ||
+        hostname == '::1') {
+      return 'http://127.0.0.1:8000/api/v1';
+    }
     return 'https://3.24.169.79/api/v1';
   }
   if (defaultTargetPlatform == TargetPlatform.android) {
@@ -35,7 +44,17 @@ class ApiException implements Exception {
 class KitchenApi {
   KitchenApi({String? baseUrl}) : baseUrl = baseUrl ?? _defaultApiBaseUrl();
   final String baseUrl;
-  String? token;
+  String? _token;
+  String? get token => _token;
+  set token(String? value) {
+    _token = value;
+    session_token_store.saveToken(value);
+  }
+
+  void restoreSession() {
+    _token = session_token_store.readToken();
+  }
+
   void Function()? onUnauthorized;
 
   Future<Map<String, dynamic>> scanIngredients(

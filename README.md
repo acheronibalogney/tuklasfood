@@ -171,15 +171,15 @@ flutter pub get
 flutter run -d chrome
 ```
 
-Flutter opens the app in Chrome and prints its localhost URL. The default web API address is the TuklasFood EC2 API. For registration to work, the server must be reachable, have a valid HTTPS certificate, and allow the localhost origin in CORS. Laravel—not Flutter—writes account data to MySQL.
+Flutter opens the app in Chrome and prints its localhost URL. On localhost, the app uses the Laravel API at `http://localhost:8000/api/v1`. Start Laravel with the command below; local CORS allows localhost and loopback preview origins on any port. Hosted web builds should set `API_BASE` to their reachable HTTPS API address. Laravel—not Flutter—writes account data to MySQL.
 
-To use a local Laravel API and MySQL instead, first start Laravel in **PowerShell terminal 1** at the repository root:
+Start the Laravel API in **PowerShell terminal 1** at the repository root:
 
 ```powershell
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Then run Flutter from `mobile` in **PowerShell terminal 2** with this API override:
+To run Flutter from `mobile` on a different localhost port, use **PowerShell terminal 2** with this API override:
 
 ```powershell
 flutter run -d chrome --web-hostname 127.0.0.1 --web-port 5180 --dart-define=API_BASE=http://127.0.0.1:8000/api/v1
